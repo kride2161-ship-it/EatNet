@@ -1,630 +1,770 @@
-Srati a hotel na school
 <!DOCTYPE html>
 <html lang="ru" data-theme="light" data-font="large" data-view="cards">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Еды.Net — Рецепты</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    /* Переменные тем и настроек */
-    :root {
-      --font-size-base: 18px;
-      
-      /* Светлая тема (По умолчанию) */
-      --bg-main: #f8fafc;
-      --bg-card: #ffffff;
-      --bg-sidebar: rgba(255, 255, 255, 0.95);
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --border-color: #e2e8f0;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-      
-      --brand-black: #090a0f;
-      --brand-violet: #6d28d9;
-      --brand-orange: #f97316;
-    }
-
-    /* Тёмная тема */
-    [data-theme="dark"] {
-      --bg-main: #090a0f;
-      --bg-card: #12151e;
-      --bg-sidebar: rgba(18, 21, 30, 0.95);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --border-color: #1e293b;
-      --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
-    }
-
-    /* Стеклянная тема */
-    [data-theme="glass"] {
-      --bg-main: linear-gradient(135deg, #090a0f 0%, #170b29 50%, #1c0e18 100%);
-      --bg-card: rgba(255, 255, 255, 0.07);
-      --bg-sidebar: rgba(15, 23, 42, 0.85);
-      --text-main: #ffffff;
-      --text-muted: #cbd5e1;
-      --border-color: rgba(255, 255, 255, 0.15);
-      --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-      backdrop-filter: blur(12px);
-    }
-
-    /* Размеры шрифтов */
-    [data-font="normal"] { --font-size-base: 15px; }
-    [data-font="large"] { --font-size-base: 18px; }
-    [data-font="xlarge"] { --font-size-base: 21px; }
-    [data-font="huge"] { --font-size-base: 24px; }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    }
-
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      font-size: var(--font-size-base);
-      background: var(--bg-main);
-      color: var(--text-main);
-      min-height: 100vh;
-      line-height: 1.6;
-    }
-
-    /* Шапка */
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: var(--bg-sidebar);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border-color);
-      padding: 1rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: var(--shadow);
-    }
-
-    .logo-container {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo-text {
-      font-weight: 900;
-      font-size: 1.8em;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-violet) 60%, var(--brand-black) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 2px 10px rgba(109, 40, 217, 0.15);
-    }
-
-    /* Кнопка бургера (3 палочки) */
-    .menu-btn {
-      background: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      cursor: pointer;
-      padding: 10px;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      width: 44px;
-      height: 44px;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .menu-btn:hover {
-      background: rgba(249, 115, 22, 0.1);
-      border-color: var(--brand-orange);
-    }
-
-    .menu-btn span {
-      display: block;
-      width: 22px;
-      height: 3px;
-      background-color: var(--text-main);
-      border-radius: 2px;
-    }
-
-    /* Боковое меню изменений */
-    .sidebar-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
-      z-index: 99;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .sidebar-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .sidebar {
-      position: fixed;
-      top: 0;
-      right: -360px;
-      width: 340px;
-      height: 100%;
-      background: var(--bg-sidebar);
-      backdrop-filter: blur(16px);
-      border-left: 1px solid var(--border-color);
-      z-index: 100;
-      padding: 2rem 1.5rem;
-      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
-      transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      overflow-y: auto;
-    }
-
-    .sidebar.active {
-      right: 0;
-    }
-
-    .sidebar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 1rem;
-    }
-
-    .sidebar-title {
-      font-size: 1.2em;
-      font-weight: 700;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 1.5em;
-      color: var(--text-main);
-      cursor: pointer;
-    }
-
-    .setting-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .setting-label {
-      font-size: 0.9em;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .setting-options {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .btn-option {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid var(--border-color);
-      background: var(--bg-card);
-      color: var(--text-main);
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 0.9em;
-      font-weight: 500;
-      text-align: center;
-    }
-
-    .btn-option.active {
-      border-color: var(--brand-orange);
-      background: linear-gradient(135deg, var(--brand-orange), var(--brand-violet));
-      color: #ffffff;
-      font-weight: 700;
-    }
-
-    /* Контейнер рецептов */
-    main {
-      max-width: 1100px;
-      margin: 2rem auto;
-      padding: 0 1.5rem;
-    }
-
-    /* Сетка карточек */
-    .recipes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem;
-    }
-
-    /* Вид просто текстом */
-    [data-view="text"] .recipes-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    /* Карточка рецепта */
-    .recipe-card {
-      background: var(--bg-card);
-      border-radius: 20px;
-      border: 1px solid var(--border-color);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    /* Динамическая цветовая полоса в зависимости от индекса */
-    .color-accent-bar {
-      height: 6px;
-      width: 100%;
-      background: linear-gradient(to right, var(--card-color-from), var(--card-color-to));
-    }
-
-    .card-header-badge {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(8px);
-      color: #fff;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8em;
-      font-weight: 600;
-      z-index: 2;
-    }
-
-    /* Фотография рецепта */
-    .recipe-image {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      display: block;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    /* В режим списка (текст) фото СКРЫВАЕТСЯ по условию */
-    [data-view="text"] .recipe-image {
-      display: none !important;
-    }
-
-    .recipe-content {
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .recipe-title {
-      font-size: 1.3em;
-      font-weight: 800;
-      line-height: 1.3;
-    }
-
-    .calories-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(249, 115, 22, 0.12);
-      color: var(--brand-orange);
-      padding: 4px 12px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.85em;
-      width: fit-content;
-    }
-
-    .section-subtitle {
-      font-size: 0.95em;
-      font-weight: 700;
-      margin-bottom: 0.4rem;
-      color: var(--brand-violet);
-    }
-
-    .ingredients-list {
-      list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .ingredient-item {
-      background: rgba(109, 40, 217, 0.08);
-      border: 1px solid rgba(109, 40, 217, 0.15);
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 0.85em;
-    }
-
-    .recipe-steps {
-      padding-left: 1.2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      font-size: 0.92em;
-    }
-
-    .color-ratio-indicator {
-      font-size: 0.75em;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
-      border-top: 1px dashed var(--border-color);
-    }
-
-    /* Адаптивность */
-    @media (max-width: 600px) {
-      .sidebar {
-        width: 100%;
-        right: -100%;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Шапка сайта -->
-  <header>
-    <div class="logo-container">
-      <div class="logo-text">Еды.Net</div>
-    </div>
-    
-    <!-- Кнопка 3 палочки (Меню изменений) -->
-    <button class="menu-btn" id="openSidebar" title="Меню изменений">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-  </header>
-
-  <!-- Затемнение для сайдбара -->
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-  <!-- Боковое меню изменений -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-title" id="menuTitle">Меню изменений</div>
-      <button class="close-btn" id="closeSidebar">&times;</button>
-    </div>
-
-    <!-- Режим отображения -->
-    <div class="setting-group">
-      <div class="setting-label" id="labelView">Вид отображения</div>
-      <div class="setting-options">
-        <button class="btn-option active" data-action="set-view" data-value="cards" id="optCards">🎴 Карточки</button>
-        <button class="btn-option" data-action="set-view" data-value="text" id="optText">📄 Текст</button>
-      </div>
-    </div>
-
-    <!-- Тема оформления -->
-    <div class="setting-group">
-      <div class="setting-label" id="labelTheme">Тема (По умолчанию — Белая)</div>
-      <div class="setting-options">
-        <button class="btn-option active" data-action="set-theme" data-value="light" id="optLight">☀️ Белая</button>
-        <button class="btn-option" data-action="set-theme" data-value="dark" id="optDark">🌙 Тёмная</button>
-        <button class="btn-option" data-action="set-theme" data-value="glass" id="optGlass">🔮 Стекло</button>
-      </div>
-    </div>
-
-    <!-- Размер шрифта -->
-    <div class="setting-group">
-      <div class="setting-label" id="labelFont">Размер шрифта</div>
-      <div class="setting-options">
-        <button class="btn-option" data-action="set-font" data-value="normal">Норм</button>
-        <button class="btn-option active" data-action="set-font" data-value="large">Крупный</button>
-        <button class="btn-option" data-action="set-font" data-value="xlarge">XL</button>
-        <button class="btn-option" data-action="set-font" data-value="huge">XXL</button>
-      </div>
-    </div>
-
-    <!-- Язык -->
-    <div class="setting-group">
-      <div class="setting-label" id="labelLang">Язык / Language</div>
-      <div class="setting-options">
-        <button class="btn-option active" data-action="set-lang" data-value="ru">🇷🇺 RU</button>
-        <button class="btn-option" data-action="set-lang" data-value="en">🇬🇧 EN</button>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Основной контент -->
-  <main>
-    <div class="recipes-grid" id="recipesContainer">
-      <!-- Рецепты генерируются динамически JS -->
-    </div>
-  </main>
-
-  <script>
-    // База данных рецептов
-    const recipesData = [
-      {
-        id: 1,
-        title: "Лапша из дешёвых предметов",
-        calories: "240 - 710 ккал",
-        image: "file_00000000f88481f495def80a6cd8bdb7.png",
-        ingredients: [
-          "Мясо (например стейк)",
-          "Соевый соус",
-          "Растительное масло",
-          "Петрушка",
-          "Лук",
-          "Морковь",
-          "Шампиньоны",
-          "Чеснок",
-          "Кипяток",
-          "Роллтон (3 пакетика)"
-        ],
-        marinateStep: "Разрежьте мясо на кусочки, налейте соевый соус и подождите несколько часов для маринования.",
-        steps: [
-          "Достаньте казан/сковородку, налейте растительное масло и подождите прожарки (разогрева).",
-          "Добавьте замаринованное мясо.",
-          "Разрежьте чеснок, добавьте в мясо и перемешайте.",
-          "Добавьте шампиньоны, перемешайте.",
-          "Добавьте морковь (нарезанную соломкой), перемешайте.",
-          "Добавьте нарезанный лук, перемешайте.",
-          "Добавьте петрушку.",
-          "Накройте крышкой на 5 минут.",
-          "Откройте крышку, полив соевым соусом, через 5 минут положите туда 3 пачки Роллтона и залейте кипятком.",
-          "Оставьте под крышкой на 5 минут, откройте, подлейте ещё немного воды и снова закройте.",
-          "Аккуратно вылейте лишнюю воду из казана/сковородки, наложите на тарелки и наслаждайтесь!"
-        ]
-      }
-    ];
-
-    // Вычисление динамического цвета (Чем меньше №, тем больше Фиолетового, чем больше № — тем больше Оранжевого)
-    function getDynamicColors(index, total) {
-      // index от 0 до total - 1
-      const ratio = total > 1 ? index / (total - 1) : 0; // 0 = 100% Фиолетовый, 1 = 100% Оранжевый
-      const violetPercent = Math.round((1 - ratio) * 100);
-      const orangePercent = Math.round(ratio * 100);
-
-      // Глубокий фиолетовый (#6d28d9) -> Ярко-оранжевый (#f97316)
-      const fromColor = `rgb(${Math.round(109 + (249 - 109) * ratio)}, ${Math.round(40 + (115 - 40) * ratio)}, ${Math.round(217 + (22 - 217) * ratio)})`;
-      const toColor = `rgb(${Math.round(147 + (249 - 147) * ratio)}, ${Math.round(51 + (115 - 51) * ratio)}, ${Math.round(234 + (22 - 234) * ratio)})`;
-
-      return { fromColor, toColor, violetPercent, orangePercent };
-    }
-
-    // Рендеринг рецептов
-    function renderRecipes() {
-      const container = document.getElementById('recipesContainer');
-      container.innerHTML = '';
-
-      const total = recipesData.length;
-
-      recipesData.forEach((recipe, i) => {
-        const colors = getDynamicColors(i, total);
-        
-        const card = document.createElement('article');
-        card.className = 'recipe-card';
-        card.style.setProperty('--card-color-from', colors.fromColor);
-        card.style.setProperty('--card-color-to', colors.toColor);
-
-        card.innerHTML = `
-          <div class="color-accent-bar"></div>
-          <div class="card-header-badge">№ ${i + 1}</div>
-          
-          <!-- Картинка показывается только в карточной режиме -->
-          <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image" onerror="this.style.background='#e2e8f0'; this.alt='Фото рецепта (серверное)';" />
-          
-          <div class="recipe-content">
-            <h2 class="recipe-title">${recipe.title}</h2>
-            <div class="calories-tag">🔥 ${recipe.calories}</div>
-            
-            <div>
-              <div class="section-subtitle">📦 Ингредиенты:</div>
-              <ul class="ingredients-list">
-                ${recipe.ingredients.map(ing => `<li class="ingredient-item">${ing}</li>`).join('')}
-              </ul>
-            </div>
-
-            <div>
-              <div class="section-subtitle">🥩 Маринование:</div>
-              <p style="font-size: 0.9em; opacity: 0.9;">${recipe.marinateStep}</p>
-            </div>
-
-            <div>
-              <div class="section-subtitle">🍳 Приготовление:</div>
-              <ol class="recipe-steps">
-                ${recipe.steps.map(step => `<li>${step}</li>`).join('')}
-              </ol>
-            </div>
-
-            <div class="color-ratio-indicator">
-              <span>🟣 Фиолетовый: ${colors.violetPercent}%</span>
-              <span>🟠 Оранжевый: ${colors.orangePercent}%</span>
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    // Логика управления боковым меню и настройками
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    
-    document.getElementById('openSidebar').addEventListener('click', () => {
-      sidebar.classList.add('active');
-      overlay.classList.add('active');
-    });
-
-    function closeMenu() {
-      sidebar.classList.remove('active');
-      overlay.classList.remove('active');
-    }
-
-    document.getElementById('closeSidebar').addEventListener('click', closeMenu);
-    overlay.addEventListener('click', closeMenu);
-
-    // Обработка переключателей в меню
-    document.querySelectorAll('.btn-option').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const action = btn.getAttribute('data-action');
-        const value = btn.getAttribute('data-value');
-
-        // Переключение активного состояния в группе
-        btn.parentElement.querySelectorAll('.btn-option').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        if (action === 'set-view') {
-          document.documentElement.setAttribute('data-view', value);
-        } else if (action === 'set-theme') {
-          document.documentElement.setAttribute('data-theme', value);
-        } else if (action === 'set-font') {
-          document.documentElement.setAttribute('data-font', value);
-        } else if (action === 'set-lang') {
-          updateLanguage(value);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Еды.Net — Кулинарный Портал</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brandViolet: '#6d28d9',
+                        brandOrange: '#f97316',
+                        brandBlack: '#090a0f',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
         }
-      });
-    });
+    </script>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    // Простая двухъязычность
-    function updateLanguage(lang) {
-      if (lang === 'en') {
-        document.getElementById('menuTitle').innerText = "Settings Menu";
-        document.getElementById('labelView').innerText = "Display View";
-        document.getElementById('labelTheme').innerText = "Theme (Default — Light)";
-        document.getElementById('labelFont').innerText = "Font Size";
-        document.getElementById('optCards').innerText = "🎴 Cards";
-        document.getElementById('optText').innerText = "📄 Text";
-        document.getElementById('optLight').innerText = "☀️ Light";
-        document.getElementById('optDark').innerText = "🌙 Dark";
-        document.getElementById('optGlass').innerText = "🔮 Glass";
-      } else {
-        document.getElementById('menuTitle').innerText = "Меню изменений";
-        document.getElementById('labelView').innerText = "Вид отображения";
-        document.getElementById('labelTheme').innerText = "Тема (По умолчанию — Белая)";
-        document.getElementById('labelFont').innerText = "Размер шрифта";
-        document.getElementById('optCards').innerText = "🎴 Карточки";
-        document.getElementById('optText').innerText = "📄 Текст";
-        document.getElementById('optLight').innerText = "☀️ Белая";
-        document.getElementById('optDark').innerText = "🌙 Тёмная";
-        document.getElementById('optGlass').innerText = "🔮 Стекло";
-      }
-    }
+    <style>
+        :root {
+            --font-size-base: 18px;
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-drawer: rgba(255, 255, 255, 0.95);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-subtle: #e2e8f0;
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            --shadow-hover: 0 20px 30px -10px rgba(109, 40, 217, 0.15);
+        }
 
-    // Инициализация при загрузке
-    renderRecipes();
-  </script>
+        [data-theme="dark"] {
+            --bg-body: #06040a;
+            --bg-surface: #110d1a;
+            --bg-drawer: rgba(17, 13, 26, 0.95);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-subtle: #261d36;
+            --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
+            --shadow-hover: 0 20px 35px -5px rgba(139, 92, 246, 0.25);
+        }
+
+        [data-theme="glass"] {
+            --bg-body: radial-gradient(circle at 20% 20%, #1e1035 0%, #06040a 60%, #180905 100%);
+            --bg-surface: rgba(255, 255, 255, 0.06);
+            --bg-drawer: rgba(15, 10, 25, 0.88);
+            --text-primary: #ffffff;
+            --text-secondary: #cbd5e1;
+            --border-subtle: rgba(255, 255, 255, 0.12);
+            --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 16px 40px 0 rgba(249, 115, 22, 0.2);
+        }
+
+        [data-font="normal"] { --font-size-base: 15px; }
+        [data-font="large"] { --font-size-base: 18px; }
+        [data-font="xlarge"] { --font-size-base: 21px; }
+        [data-font="huge"] { --font-size-base: 24px; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: var(--font-size-base);
+            background: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease, font-size 0.2s ease;
+        }
+
+        .bg-surface {
+            background-color: var(--bg-surface);
+            border-color: var(--border-subtle);
+            box-shadow: var(--shadow-card);
+        }
+
+        .bg-drawer-blur {
+            background-color: var(--bg-drawer);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .logo-gradient-text {
+            background: linear-gradient(135deg, #f97316 0%, #8b5cf6 50%, #06040a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        [data-theme="dark"] .logo-gradient-text,
+        [data-theme="glass"] .logo-gradient-text {
+            background: linear-gradient(135deg, #f97316 0%, #a855f7 60%, #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom transitions for cards */
+        .card-transition {
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .card-transition:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Drawer Slide Animation */
+        .drawer-slide {
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Hide image in text-only mode */
+        [data-view="text"] .recipe-card-image-wrapper {
+            display: none !important;
+        }
+
+        [data-view="text"] .recipes-grid-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen selection:bg-purple-500 selection:text-white">
+
+    <header class="sticky top-0 z-40 w-full bg-drawer-blur border-b border-[var(--border-subtle)] px-4 lg:px-8 py-3.5 transition-all">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            
+            <!-- Logo with Orange - Purple - Deep Black gradient -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brandOrange via-brandViolet to-black p-0.5 shadow-md flex items-center justify-center shrink-0">
+                    <div class="w-full h-full bg-surface rounded-[14px] flex items-center justify-center">
+                        <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-2xl lg:text-3xl font-black tracking-tight logo-gradient-text leading-none">
+                        Еды.Net
+                    </h1>
+                    <span class="text-[11px] font-semibold tracking-wider text-[var(--text-secondary)] uppercase block mt-0.5" data-i18n="subHeader">
+                        Кулинарный портал рецептов
+                    </span>
+                </div>
+            </div>
+
+            <!-- Header Quick Badge & Sidebar Trigger Button (3 bars) -->
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-1 bg-[var(--border-subtle)]/40 p-1 rounded-xl text-xs font-medium">
+                    <span id="activeViewBadge" class="px-2.5 py-1 rounded-lg bg-[var(--bg-surface)] shadow-sm font-semibold text-purple-600 dark:text-purple-400">
+                        🎴 Карточки
+                    </span>
+                    <span id="activeThemeBadge" class="px-2.5 py-1 text-[var(--text-secondary)]">
+                        ☀️ Белая
+                    </span>
+                </div>
+
+                <!-- 3 Bars Drawer Toggle Button -->
+                <button id="openSidebarBtn" aria-label="Открыть меню изменений" class="p-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-orange-500/50 hover:text-orange-500 focus:outline-none transition-all active:scale-95 group shadow-sm">
+                    <div class="w-6 h-5 flex flex-col justify-between items-end">
+                        <span class="w-6 h-0.5 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full transition-all group-hover:w-6"></span>
+                        <span class="w-4 h-0.5 bg-gradient-to-r from-purple-500 to-purple-700 rounded-full transition-all group-hover:w-6"></span>
+                        <span class="w-5 h-0.5 bg-gradient-to-r from-purple-600 to-orange-500 rounded-full transition-all group-hover:w-6"></span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Drawer Overlay -->
+    <div id="drawerOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+    <!-- Sidebar Drawer (Menu of Changes) -->
+    <aside id="sidebarDrawer" class="fixed top-0 right-0 h-full w-88 max-w-[85vw] bg-drawer-blur border-l border-[var(--border-subtle)] z-50 transform translate-x-full drawer-slide flex flex-col justify-between p-6 shadow-2xl overflow-y-auto">
+        <div class="space-y-6">
+            <!-- Sidebar Header -->
+            <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-gradient-to-r from-orange-500 to-purple-600 animate-pulse"></span>
+                    <h2 class="text-lg font-bold text-[var(--text-primary)]" data-i18n="menuTitle">
+                        Меню изменений
+                    </h2>
+                </div>
+                <button id="closeSidebarBtn" class="p-2 rounded-xl border border-[var(--border-subtle)] hover:bg-orange-500/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Option 1: View Mode -->
+            <div class="space-y-2">
+                <label class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]" data-i18n="viewModeLabel">
+                    Режим отображения
+                </label>
+                <div class="grid grid-cols-2 gap-2 bg-[var(--border-subtle)]/30 p-1.5 rounded-2xl border border-[var(--border-subtle)]">
+                    <button data-action="set-view" data-value="cards" class="view-opt-btn py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                        <span>🎴</span>
+                        <span data-i18n="optCards">Карточки</span>
+                    </button>
+                    <button data-action="set-view" data-value="text" class="view-opt-btn py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                        <span>📄</span>
+                        <span data-i18n="optText">Просто текст</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Option 2: Theme Selector (Default: White) -->
+            <div class="space-y-2">
+                <label class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]" data-i18n="themeLabel">
+                    Тема (По умолчанию белая)
+                </label>
+                <div class="grid grid-cols-3 gap-2 bg-[var(--border-subtle)]/30 p-1.5 rounded-2xl border border-[var(--border-subtle)]">
+                    <button data-action="set-theme" data-value="light" class="theme-opt-btn py-2 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
+                        <span>☀️</span>
+                        <span data-i18n="themeLight">Белая</span>
+                    </button>
+                    <button data-action="set-theme" data-value="dark" class="theme-opt-btn py-2 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
+                        <span>🌙</span>
+                        <span data-i18n="themeDark">Тёмная</span>
+                    </button>
+                    <button data-action="set-theme" data-value="glass" class="theme-opt-btn py-2 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
+                        <span>🔮</span>
+                        <span data-i18n="themeGlass">Стекло</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Option 3: Font Size Controls -->
+            <div class="space-y-2">
+                <label class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]" data-i18n="fontSizeLabel">
+                    Размер шрифта
+                </label>
+                <div class="grid grid-cols-4 gap-1.5 bg-[var(--border-subtle)]/30 p-1.5 rounded-2xl border border-[var(--border-subtle)]">
+                    <button data-action="set-font" data-value="normal" class="font-opt-btn py-2 px-1 rounded-xl text-xs font-medium text-center transition-all">
+                        Норм
+                    </button>
+                    <button data-action="set-font" data-value="large" class="font-opt-btn py-2 px-1 rounded-xl text-xs font-bold text-center transition-all">
+                        Крупный
+                    </button>
+                    <button data-action="set-font" data-value="xlarge" class="font-opt-btn py-2 px-1 rounded-xl text-sm font-extrabold text-center transition-all">
+                        XL
+                    </button>
+                    <button data-action="set-font" data-value="huge" class="font-opt-btn py-2 px-1 rounded-xl text-base font-black text-center transition-all">
+                        XXL
+                    </button>
+                </div>
+            </div>
+
+            <!-- Option 4: Language Selector -->
+            <div class="space-y-2">
+                <label class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]" data-i18n="langLabel">
+                    Язык / Language
+                </label>
+                <div class="grid grid-cols-2 gap-2 bg-[var(--border-subtle)]/30 p-1.5 rounded-2xl border border-[var(--border-subtle)]">
+                    <button data-action="set-lang" data-value="ru" class="lang-opt-btn py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                        <span>🇷🇺</span>
+                        <span>Русский</span>
+                    </button>
+                    <button data-action="set-lang" data-value="en" class="lang-opt-btn py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                        <span>🇬🇧</span>
+                        <span>English</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Color Gradient Info Card -->
+            <div class="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs space-y-2">
+                <div class="flex items-center gap-2 text-purple-600 dark:text-purple-300 font-bold">
+                    <svg class="w-4 h-4 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span data-i18n="gradientRuleTitle">Правило пропорциональности:</span>
+                </div>
+                <p class="text-[var(--text-secondary)] leading-relaxed text-[12px]" data-i18n="gradientRuleDesc">
+                    Чем меньше порядковый номер элемента в каталоге, тем больше фиолетового цвета и меньше оранжевого. В конце списка цвет плавно переходит в оранжевый!
+                </p>
+                <div class="h-2 w-full rounded-full bg-gradient-to-r from-purple-700 via-purple-500 to-orange-500 mt-2"></div>
+            </div>
+        </div>
+
+        <!-- Sidebar Footer -->
+        <div class="border-t border-[var(--border-subtle)] pt-4 text-center mt-6">
+            <p class="text-xs text-[var(--text-secondary)]">
+                Еды.Net &copy; 2026
+            </p>
+        </div>
+    </aside>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 lg:px-8 py-8 flex-1 w-full">
+        
+        <!-- Controls Bar -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)] flex items-center gap-3">
+                    <span data-i18n="catalogTitle">Каталог Рецептов</span>
+                    <span id="recipeCountBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/30">
+                        1
+                    </span>
+                </h2>
+                <p class="text-xs sm:text-sm text-[var(--text-secondary)] mt-1" data-i18n="catalogSub">
+                    Вкусные блюда с пошаговым приготовлением
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button id="addRecipeModalBtn" class="flex-1 sm:flex-none bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-600 hover:to-purple-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span data-i18n="addRecipeBtn">Добавить рецепт</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Recipes List / Grid Container -->
+        <div id="recipesContainer" class="recipes-grid-layout grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+            <!-- Dynamic Recipe Item HTML goes here -->
+        </div>
+
+    </main>
+
+    <!-- Add Recipe Modal Overlay -->
+    <div id="addModal" class="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-surface border border-[var(--border-subtle)] rounded-3xl max-w-lg w-full p-6 shadow-2xl relative transform scale-95 transition-transform duration-300" id="modalBox">
+            <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4 mb-4">
+                <h3 class="text-lg font-extrabold text-[var(--text-primary)] flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-orange-500"></span>
+                    <span data-i18n="modalTitle">Новый рецепт</span>
+                </h3>
+                <button id="closeModalBtn" class="p-1.5 rounded-xl border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form id="addRecipeForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-[var(--text-secondary)] mb-1" data-i18n="inputTitle">Название блюда</label>
+                    <input type="text" id="recipeTitleInput" required placeholder="Например: Стеклянная паста" class="w-full bg-[var(--border-subtle)]/30 border border-[var(--border-subtle)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-[var(--text-secondary)] mb-1" data-i18n="inputCal">Калории</label>
+                        <input type="text" id="recipeCalInput" required value="240 - 710 ккал" class="w-full bg-[var(--border-subtle)]/30 border border-[var(--border-subtle)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-[var(--text-secondary)] mb-1" data-i18n="inputImg">Имя файла фото</label>
+                        <input type="text" id="recipeImgInput" required value="file_00000000f88481f495def80a6cd8bdb7.png" class="w-full bg-[var(--border-subtle)]/30 border border-[var(--border-subtle)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-[var(--text-secondary)] mb-1" data-i18n="inputIngr">Ингредиенты (через запятую)</label>
+                    <input type="text" id="recipeIngrInput" required placeholder="Мясо, соус, картофель..." class="w-full bg-[var(--border-subtle)]/30 border border-[var(--border-subtle)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-[var(--text-secondary)] mb-1" data-i18n="inputMarinate">Инструкция маринования</label>
+                    <textarea id="recipeMarinateInput" rows="2" required class="w-full bg-[var(--border-subtle)]/30 border border-[var(--border-subtle)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500 resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-[var(--text-secondary)] mb-1" data-i18n="inputSteps">Шаги приготовления (каждый шаг с новой строки)</label>
+                    <textarea id="recipeStepsInput" rows="4" required class="w-full bg-[var(--border-subtle)]/30 border border-[var(--border-subtle)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500 resize-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+                    <button type="button" id="cancelModalBtn" class="px-4 py-2.5 rounded-xl text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--border-subtle)]/40" data-i18n="cancelBtn">
+                        Отмена
+                    </button>
+                    <button type="submit" class="bg-gradient-to-r from-orange-500 to-purple-600 text-white px-5 py-2.5 rounded-xl text-xs font-extrabold shadow-md hover:shadow-lg" data-i18n="saveBtn">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full bg-surface border-t border-[var(--border-subtle)] py-6 px-4 mt-12 text-center text-xs text-[var(--text-secondary)]">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="font-black logo-gradient-text text-base">Еды.Net</span>
+                <span>— Быстро, вкусно и доступно</span>
+            </div>
+            <p data-i18n="footerText">
+                Чем меньше номер карточки, тем больше фиолетового цвета. Чем больше — тем больше оранжевого.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Dictionary for English / Russian
+        const i18n = {
+            ru: {
+                subHeader: "Кулинарный портал рецептов",
+                menuTitle: "Меню изменений",
+                viewModeLabel: "Режим отображения",
+                optCards: "Карточки",
+                optText: "Просто текст",
+                themeLabel: "Тема (По умолчанию белая)",
+                themeLight: "Белая",
+                themeDark: "Тёмная",
+                themeGlass: "Стекло",
+                fontSizeLabel: "Размер шрифта",
+                langLabel: "Язык / Language",
+                gradientRuleTitle: "Правило пропорциональности:",
+                gradientRuleDesc: "Чем меньше порядковый номер элемента в каталоге, тем больше фиолетового цвета и меньше оранжевого. В конце списка цвет плавно переходит в оранжевый!",
+                catalogTitle: "Каталог Рецептов",
+                catalogSub: "Вкусные блюда с пошаговым приготовлением",
+                addRecipeBtn: "Добавить рецепт",
+                modalTitle: "Новый рецепт",
+                inputTitle: "Название блюда",
+                inputCal: "Калории",
+                inputImg: "Имя файла фото",
+                inputIngr: "Ингредиенты (через запятую)",
+                inputMarinate: "Инструкция маринования",
+                inputSteps: "Шаги приготовления (с новой строки)",
+                cancelBtn: "Отмена",
+                saveBtn: "Сохранить",
+                footerText: "Чем меньше номер карточки, тем больше фиолетового цвета. Чем больше — тем больше оранжевого.",
+                ingredientsTitle: "📦 Надо достать предметы (Ингредиенты):",
+                marinateTitle: "🥩 Маринование:",
+                cookingTitle: "🍳 Приготовление:",
+                recipeNumberLabel: "Рецепт №",
+                violetRatioLabel: "Фиолетовый",
+                orangeRatioLabel: "Оранжевый"
+            },
+            en: {
+                subHeader: "Culinary Recipe Portal",
+                menuTitle: "Settings Menu",
+                viewModeLabel: "Display View Mode",
+                optCards: "Cards View",
+                optText: "Plain Text",
+                themeLabel: "Theme (Default — Light)",
+                themeLight: "Light",
+                themeDark: "Dark",
+                themeGlass: "Glass",
+                fontSizeLabel: "Font Size",
+                langLabel: "Language / Язык",
+                gradientRuleTitle: "Color Gradient Rule:",
+                gradientRuleDesc: "The lower the item index, the more violet color it has. As the index increases, it shifts seamlessly towards vibrant orange!",
+                catalogTitle: "Recipe Catalog",
+                catalogSub: "Delicious meals with step-by-step guidance",
+                addRecipeBtn: "Add Recipe",
+                modalTitle: "New Recipe",
+                inputTitle: "Dish Name",
+                inputCal: "Calories",
+                inputImg: "Image filename",
+                inputIngr: "Ingredients (comma separated)",
+                inputMarinate: "Marinating instructions",
+                inputSteps: "Cooking steps (one per line)",
+                cancelBtn: "Cancel",
+                saveBtn: "Save",
+                footerText: "Lower recipe index = More violet. Higher recipe index = More orange.",
+                ingredientsTitle: "📦 Required Items (Ingredients):",
+                marinateTitle: "🥩 Marination:",
+                cookingTitle: "🍳 Cooking Process:",
+                recipeNumberLabel: "Recipe #",
+                violetRatioLabel: "Violet",
+                orangeRatioLabel: "Orange"
+            }
+        };
+
+        let appState = {
+            lang: 'ru',
+            theme: 'light', // Light mode default
+            font: 'large',  // Large font default
+            view: 'cards',  // Cards mode default
+            recipes: [
+                {
+                    id: 1,
+                    title: "Лапша из дешёвых предметов",
+                    calories: "240 - 710 ккал",
+                    image: "file_00000000f88481f495def80a6cd8bdb7.png",
+                    ingredients: [
+                        "Мясо (например стейк)",
+                        "Соевый соус",
+                        "Растительное масло",
+                        "Петрушка",
+                        "Лук",
+                        "Морковь",
+                        "Шампиньоны",
+                        "Чеснок",
+                        "Кипяток",
+                        "Роллтон (3 пакетика)"
+                    ],
+                    marination: "Промаринуйте, разрежьте на кусочки мясо, налейте соевый соус, а потом подождите несколько часов.",
+                    steps: [
+                        "Достаньте казан/сковородку, налейте растительное масло ➔ подождите прожарки казана/сковородки, добавьте мясо.",
+                        "Разрежьте чеснок и добавьте в мясо, перемешайте.",
+                        "Добавьте шампиньоны, перемешайте.",
+                        "Добавьте морковь (нарезанную соломкой), перемешайте.",
+                        "Добавьте лук нарезанный, перемешайте.",
+                        "Добавьте петрушку.",
+                        "Накройте крышкой на 5 минут.",
+                        "Откройте, чтобы полить соевым соусом.",
+                        "Через 5 минут положите туда 3 пачки Роллтона, налейте туда кипяток.",
+                        "Оставьте крышку на 5 минут.",
+                        "Откройте крышку, подлейте ещё воды и закройте.",
+                        "Возьмите и казан/сковородку, вылейте из него/неё воду.",
+                        "Наложите на тарелку и наслаждайтесь!"
+                    ]
+                }
+            ]
+        };
+
+        /**
+         * Dynamic Color Gradient Calculation
+         * Index 0 = Max Violet (e.g. 100% Violet, 0% Orange)
+         * Index Max = Max Orange (e.g. 0% Violet, 100% Orange)
+         */
+        function calculateGradientColors(index, total) {
+            let t = total > 1 ? index / (total - 1) : 0; // ratio [0.0 ... 1.0]
+            
+            let violetPercent = Math.round((1 - t) * 100);
+            let orangePercent = 100 - violetPercent;
+
+            // Violet HSL ~ (270, 85%, 55%) -> Orange HSL ~ (25, 95%, 50%)
+            let hue = Math.round(270 - t * 245);
+            let primaryHsla = `hsla(${hue}, 85%, 55%, 1)`;
+            let bgGradient = `linear-gradient(135deg, hsla(${hue}, 80%, 55%, 0.12) 0%, hsla(25, 90%, 50%, ${0.05 + t * 0.15}) 100%)`;
+            let borderStyle = `hsla(${hue}, 80%, 55%, 0.35)`;
+
+            return {
+                violetPercent,
+                orangePercent,
+                hue,
+                primaryHsla,
+                bgGradient,
+                borderStyle
+            };
+        }
+
+        function renderRecipes() {
+            const container = document.getElementById('recipesContainer');
+            const langDict = i18n[appState.lang];
+            const total = appState.recipes.length;
+
+            document.getElementById('recipeCountBadge').textContent = total;
+
+            container.innerHTML = appState.recipes.map((item, idx) => {
+                const colorInfo = calculateGradientColors(idx, total);
+                const recipeNum = idx + 1;
+
+                return `
+                    <article class="recipe-card bg-surface card-transition rounded-3xl border overflow-hidden flex flex-col justify-between relative"
+                             style="border-color: ${colorInfo.borderStyle}; background: ${colorInfo.bgGradient};">
+                        
+                        <!-- Top Accent Scale Bar -->
+                        <div class="h-2 w-full" style="background: linear-gradient(90deg, hsla(270,85%,55%,1), ${colorInfo.primaryHsla}, hsla(25,95%,50%,1));"></div>
+
+                        <!-- Recipe Number Tag -->
+                        <div class="absolute top-4 right-4 z-10 px-3 py-1 rounded-full text-xs font-black text-white shadow-lg backdrop-blur-md"
+                             style="background: ${colorInfo.primaryHsla};">
+                            ${langDict.recipeNumberLabel} ${recipeNum}
+                        </div>
+
+                        <div>
+                            <!-- Server Image (ONLY DISPLAYED IN CARDS MODE) -->
+                            <div class="recipe-card-image-wrapper w-full h-64 overflow-hidden relative border-b border-[var(--border-subtle)] bg-slate-900/10">
+                                <img src="${item.image}" alt="${escapeHtml(item.title)}"
+                                     class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+                                     onerror="this.onerror=null; this.src='https://placehold.co/600x400/1e1035/f97316?text=${encodeURIComponent(item.title)}';" />
+                            </div>
+
+                            <!-- Card Content Body -->
+                            <div class="p-6 space-y-5">
+                                <div>
+                                    <h3 class="text-xl sm:text-2xl font-black text-[var(--text-primary)] leading-tight mb-2">
+                                        ${escapeHtml(item.title)}
+                                    </h3>
+                                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-orange-500/15 text-orange-600 dark:text-orange-400 font-extrabold text-xs">
+                                        <span>🔥 ${escapeHtml(item.calories)}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Ingredients List -->
+                                <div>
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-2">
+                                        ${langDict.ingredientsTitle}
+                                    </h4>
+                                    <div class="flex flex-wrap gap-1.5">
+                                        ${item.ingredients.map(ing => `
+                                            <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] text-[var(--text-primary)]">
+                                                ${escapeHtml(ing)}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+
+                                <!-- Marination Instruction -->
+                                ${item.marination ? `
+                                <div class="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs">
+                                    <h5 class="font-bold text-purple-700 dark:text-purple-300 mb-1">${langDict.marinateTitle}</h5>
+                                    <p class="text-[var(--text-primary)] leading-relaxed">${escapeHtml(item.marination)}</p>
+                                </div>
+                                ` : ''}
+
+                                <!-- Cooking Steps -->
+                                <div>
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 mb-2">
+                                        ${langDict.cookingTitle}
+                                    </h4>
+                                    <ol class="space-y-2 text-xs sm:text-sm text-[var(--text-primary)] list-decimal list-inside leading-relaxed">
+                                        ${item.steps.map(step => `
+                                            <li class="pl-1"><span class="font-normal">${escapeHtml(step)}</span></li>
+                                        `).join('')}
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer Color Proportion Indicator -->
+                        <div class="p-4 mx-6 mb-6 border-t border-[var(--border-subtle)] flex flex-col gap-1.5 text-xs">
+                            <div class="flex justify-between items-center font-bold">
+                                <span class="text-purple-600 dark:text-purple-400">💜 ${langDict.violetRatioLabel}: ${colorInfo.violetPercent}%</span>
+                                <span class="text-orange-600 dark:text-orange-400">🧡 ${langDict.orangeRatioLabel}: ${colorInfo.orangePercent}%</span>
+                            </div>
+                            <div class="h-2 w-full bg-[var(--border-subtle)] rounded-full overflow-hidden flex p-0.5">
+                                <div class="h-full bg-purple-600 rounded-l-full transition-all duration-300" style="width: ${colorInfo.violetPercent}%;"></div>
+                                <div class="h-full bg-orange-500 rounded-r-full transition-all duration-300" style="width: ${colorInfo.orangePercent}%;"></div>
+                            </div>
+                        </div>
+
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+
+        function updateState(key, val) {
+            appState[key] = val;
+            document.documentElement.setAttribute(`data-${key}`, val);
+
+            // Highlight buttons in drawer
+            document.querySelectorAll(`[data-action="set-${key}"]`).forEach(btn => {
+                if (btn.getAttribute('data-value') === val) {
+                    btn.classList.add('bg-gradient-to-r', 'from-orange-500', 'to-purple-600', 'text-white', 'shadow-md', 'font-bold');
+                    btn.classList.remove('bg-transparent', 'text-[var(--text-primary)]');
+                } else {
+                    btn.classList.remove('bg-gradient-to-r', 'from-orange-500', 'to-purple-600', 'text-white', 'shadow-md', 'font-bold');
+                    btn.classList.add('bg-transparent');
+                }
+            });
+
+            // Update Header Badges
+            if (key === 'view') {
+                document.getElementById('activeViewBadge').textContent = val === 'cards' ? '🎴 Карточки' : '📄 Текст';
+            }
+            if (key === 'theme') {
+                const themeNames = { light: '☀️ Белая', dark: '🌙 Тёмная', glass: '🔮 Стекло' };
+                document.getElementById('activeThemeBadge').textContent = themeNames[val] || '☀️ Белая';
+            }
+
+            if (key === 'lang') {
+                updateTranslations();
+            }
+
+            renderRecipes();
+        }
+
+        function updateTranslations() {
+            const dict = i18n[appState.lang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) {
+                    el.textContent = dict[key];
+                }
+            });
+        }
+
+        // Drawer Menu Toggle
+        const drawer = document.getElementById('sidebarDrawer');
+        const overlay = document.getElementById('drawerOverlay');
+
+        function openDrawer() {
+            drawer.classList.remove('translate-x-full');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeDrawer() {
+            drawer.classList.add('translate-x-full');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        // Modal Toggle
+        const modal = document.getElementById('addModal');
+        const modalBox = document.getElementById('modalBox');
+
+        function openModal() {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalBox.classList.remove('scale-95');
+            modalBox.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalBox.classList.remove('scale-100');
+            modalBox.classList.add('scale-95');
+            document.getElementById('addRecipeForm').reset();
+        }
+
+        // Initialize App Events
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('openSidebarBtn').addEventListener('click', openDrawer);
+            document.getElementById('closeSidebarBtn').addEventListener('click', closeDrawer);
+            overlay.addEventListener('click', closeDrawer);
+
+            document.getElementById('addRecipeModalBtn').addEventListener('click', openModal);
+            document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+            document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+
+            // Handle Drawer Control Buttons
+            document.querySelectorAll('[data-action]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const action = btn.getAttribute('data-action');
+                    const value = btn.getAttribute('data-value');
+                    if (action === 'set-view') updateState('view', value);
+                    if (action === 'set-theme') updateState('theme', value);
+                    if (action === 'set-font') updateState('font', value);
+                    if (action === 'set-lang') updateState('lang', value);
+                });
+            });
+
+            // Handle New Recipe Form Submit
+            document.getElementById('addRecipeForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const title = document.getElementById('recipeTitleInput').value.trim();
+                const calories = document.getElementById('recipeCalInput').value.trim();
+                const image = document.getElementById('recipeImgInput').value.trim() || 'file_00000000f88481f495def80a6cd8bdb7.png';
+                const ingrRaw = document.getElementById('recipeIngrInput').value.trim();
+                const marination = document.getElementById('recipeMarinateInput').value.trim();
+                const stepsRaw = document.getElementById('recipeStepsInput').value.trim();
+
+                if (title && ingrRaw && stepsRaw) {
+                    appState.recipes.push({
+                        id: appState.recipes.length + 1,
+                        title,
+                        calories,
+                        image,
+                        ingredients: ingrRaw.split(',').map(s => s.trim()).filter(Boolean),
+                        marination,
+                        steps: stepsRaw.split('\n').map(s => s.trim()).filter(Boolean)
+                    });
+
+                    renderRecipes();
+                    closeModal();
+                }
+            });
+
+            // Set initial defaults (Light theme, Large font, Cards view, RU language)
+            updateState('theme', 'light');
+            updateState('font', 'large');
+            updateState('view', 'cards');
+            updateState('lang', 'ru');
+        });
+    </script>
 </body>
-      </html>
+</html>
